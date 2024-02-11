@@ -42,28 +42,60 @@ source_group("SIMD Files" FILES ${SIMD_SOURCE})
 source_group("SIMD Files" FILES ${SIMD_INLINE})
 source_group("SIMD Files" FILES ${SIMD_HEADER})
 
-add_library(glm-header-only INTERFACE)
-add_library(glm::glm-header-only ALIAS glm-header-only)
+#add_library(glm-header-only INTERFACE)
+#add_library(glm::glm-header-only ALIAS glm-header-only)
+add_library(glm.glm-header-only INTERFACE)
+add_library(glm::glm-header-only ALIAS glm.glm-header-only)
 
-target_include_directories(glm-header-only INTERFACE
-	"$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-	"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+#target_include_directories(glm-header-only INTERFACE
+#    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+#    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+#)
+target_include_directories(glm.glm-header-only INTERFACE
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
+set_target_properties(glm.glm-header-only PROPERTIES EXPORT_NAME glm-header-only)
+
+set(GLM_ADDITIONAL_FLAGS)
+if (GLM_FORCE_DEPTH_ZERO_TO_ONE)
+    list(APPEND GLM_ADDITIONAL_FLAGS "GLM_FORCE_DEPTH_ZERO_TO_ONE=1")
+endif ()
+if (GLM_FORCE_LEFT_HANDED)
+    list(APPEND GLM_ADDITIONAL_FLAGS "GLM_FORCE_LEFT_HANDED=1")
+endif ()
+target_compile_definitions(glm.glm-header-only INTERFACE ${GLM_ADDITIONAL_FLAGS})
 
 if (GLM_BUILD_LIBRARY)
-	add_library(glm
-		${ROOT_TEXT}      ${ROOT_MD}        ${ROOT_NAT}
-		${ROOT_SOURCE}    ${ROOT_INLINE}    ${ROOT_HEADER}
-		${CORE_SOURCE}    ${CORE_INLINE}    ${CORE_HEADER}
-		${EXT_SOURCE}     ${EXT_INLINE}     ${EXT_HEADER}
-		${GTC_SOURCE}     ${GTC_INLINE}     ${GTC_HEADER}
-		${GTX_SOURCE}     ${GTX_INLINE}     ${GTX_HEADER}
-		${SIMD_SOURCE}    ${SIMD_INLINE}    ${SIMD_HEADER}
-	)
-	add_library(glm::glm ALIAS glm)
-	target_link_libraries(glm PUBLIC glm-header-only)
+#    add_library(glm
+#        ${ROOT_TEXT}      ${ROOT_MD}        ${ROOT_NAT}
+#        ${ROOT_SOURCE}    ${ROOT_INLINE}    ${ROOT_HEADER}
+#        ${CORE_SOURCE}    ${CORE_INLINE}    ${CORE_HEADER}
+#        ${EXT_SOURCE}     ${EXT_INLINE}     ${EXT_HEADER}
+#        ${GTC_SOURCE}     ${GTC_INLINE}     ${GTC_HEADER}
+#        ${GTX_SOURCE}     ${GTX_INLINE}     ${GTX_HEADER}
+#        ${SIMD_SOURCE}    ${SIMD_INLINE}    ${SIMD_HEADER}
+#    )
+#    add_library(glm::glm ALIAS glm)
+#    target_link_libraries(glm PUBLIC glm-header-only)
+    add_library(glm.glm
+        ${ROOT_TEXT}      ${ROOT_MD}        ${ROOT_NAT}
+        ${ROOT_SOURCE}    ${ROOT_INLINE}    ${ROOT_HEADER}
+        ${CORE_SOURCE}    ${CORE_INLINE}    ${CORE_HEADER}
+        ${EXT_SOURCE}     ${EXT_INLINE}     ${EXT_HEADER}
+        ${GTC_SOURCE}     ${GTC_INLINE}     ${GTC_HEADER}
+        ${GTX_SOURCE}     ${GTX_INLINE}     ${GTX_HEADER}
+        ${SIMD_SOURCE}    ${SIMD_INLINE}    ${SIMD_HEADER}
+    )
+    add_library(glm::glm ALIAS glm.glm)
+    target_link_libraries(glm.glm PUBLIC glm.glm-header-only)
+    set_target_properties(glm.glm PROPERTIES EXPORT_NAME glm OUTPUT_NAME glm)
 else()
-	add_library(glm INTERFACE)
-	add_library(glm::glm ALIAS glm)
-	target_link_libraries(glm INTERFACE glm-header-only)
+#    add_library(glm INTERFACE)
+#    add_library(glm::glm ALIAS glm)
+#    target_link_libraries(glm INTERFACE glm-header-only)
+    add_library(glm.glm INTERFACE)
+    add_library(glm::glm ALIAS glm.glm)
+    target_link_libraries(glm.glm INTERFACE glm.glm-header-only)
+    set_target_properties(glm.glm PROPERTIES EXPORT_NAME glm OUTPUT_NAME glm)
 endif()
